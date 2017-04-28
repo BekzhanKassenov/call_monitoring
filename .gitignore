@@ -1,5 +1,5 @@
 out/
-ProcessorTest/kz/edu/nu/monitored_test/generated/
+ProcessorTest/generated/
 # User-specific stuff:
 .idea/**/workspace.xml
 .idea/**/tasks.xml
