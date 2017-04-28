@@ -1,0 +1,6 @@
+out/
+ProcessorTest/kz/edu/nu/monitored_test/generated/
+# User-specific stuff:
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/dictionaries

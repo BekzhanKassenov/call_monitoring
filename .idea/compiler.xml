@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+      </profile>
+      <profile name="no_processing">
+        <module name="Processor" />
+        <module name="ProcessorAnnotations" />
+      </profile>
+    </annotationProcessing>
+  </component>
+</project>
