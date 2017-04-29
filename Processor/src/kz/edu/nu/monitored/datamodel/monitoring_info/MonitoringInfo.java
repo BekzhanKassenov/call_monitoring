@@ -1,7 +1,6 @@
 package kz.edu.nu.monitored.datamodel.monitoring_info;
 
 import com.google.common.collect.ImmutableMap;
-import kz.edu.nu.monitored.Monitoring;
 import kz.edu.nu.monitored.annotations.CallStack;
 import kz.edu.nu.monitored.annotations.CalledBy;
 
@@ -25,6 +24,12 @@ public abstract class MonitoringInfo {
                 return new CallerList(element);
             }
         },
+        CALLER_CHAIN {
+            @Override
+            public MonitoringInfo getInstance(ExecutableElement element) {
+                return new CallerChain(element);
+            }
+        }
         ;
 
         public abstract MonitoringInfo getInstance(ExecutableElement element);
@@ -34,7 +39,8 @@ public abstract class MonitoringInfo {
     public static final
         Map<Class<? extends Annotation>, Type> MONITORING_TYPES =
             ImmutableMap.of(
-                CalledBy.class, MonitoringInfo.Type.CALLER_LIST);
+                CalledBy.class, Type.CALLER_LIST,
+                CallStack.class, Type.CALLER_CHAIN);
 
     public static final Set<Class<? extends Annotation>> MONITORING_ANNOTATIONS =
             MONITORING_TYPES.keySet();

@@ -9,6 +9,20 @@ public class Main {
         test.test2();
         
         testOutsideMain(test);
+
+        try {
+            System.out.println(test.test3("a", 0));
+            System.err.println("Exception was not thrown while testing test1!");
+            System.exit(1);
+        } catch (Throwable t) {
+            // OK
+        }
+
+        testLayer(test);
+    }
+
+    static void testLayer(Test test) {
+        System.out.println(test.test3("a", 0));
     }
 
     static void testOutsideMain(Test test) {

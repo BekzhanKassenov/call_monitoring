@@ -14,6 +14,9 @@ class ${className}_Monitored extends ${className} {
                     <#case "CALLER_LIST">
                         <#include "monitoring_body/CallerList.ftl">
                         <#break>
+                    <#case "CALLER_CHAIN">
+                        <#include "monitoring_body/CallerChain.ftl">
+                        <#break>
                 </#switch>
 
                 <#if method.returnType != "void">return </#if>
