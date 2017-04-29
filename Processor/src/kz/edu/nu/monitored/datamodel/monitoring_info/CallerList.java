@@ -17,4 +17,9 @@ public class CallerList extends MonitoringInfo {
     public List<String> getCallers() {
         return callerList;
     }
+
+    @Override
+    public String getTemplateFile() {
+        return "monitoring_body/CallerList.ftl";
+    }
 }

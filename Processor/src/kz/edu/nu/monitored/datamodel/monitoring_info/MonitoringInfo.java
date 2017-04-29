@@ -55,6 +55,8 @@ public abstract class MonitoringInfo {
         return monitoringType.toString();
     }
 
+    public abstract String getTemplateFile();
+
     public static MonitoringInfo from(ExecutableElement element) throws Exception {
         Set<Type> monitoringTypes = new HashSet<>();
         for (Class <? extends Annotation> annotationClass : MONITORING_ANNOTATIONS) {

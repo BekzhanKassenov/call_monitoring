@@ -17,4 +17,9 @@ public class CallerChain extends MonitoringInfo {
     public List<String> getExpectedCallStack() {
         return expectedCallStack;
     }
+
+    @Override
+    public String getTemplateFile() {
+        return "monitoring_body/CallerChain.ftl";
+    }
 }

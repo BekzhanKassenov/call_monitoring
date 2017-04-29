@@ -4,4 +4,9 @@ class NoMonitoring extends MonitoringInfo {
     NoMonitoring() {
         super(Type.NO_MONITORING);
     }
+
+    @Override
+    public String getTemplateFile() {
+        return null;
+    }
 }
