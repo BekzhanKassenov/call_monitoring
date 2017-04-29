@@ -4,10 +4,10 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
-import kz.edu.nu.monitored.annotations.CalledBy;
 import kz.edu.nu.monitored.annotations.Monitored;
 import kz.edu.nu.monitored.datamodel.ClassInformation;
 import kz.edu.nu.monitored.datamodel.MethodInformation;
+import kz.edu.nu.monitored.datamodel.monitoring_info.MonitoringInfo;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
@@ -18,14 +18,14 @@ import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.lang.annotation.Annotation;
+import java.util.*;
 
 @SupportedAnnotationTypes("kz.edu.nu.monitored.annotations.Monitored")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class MonitoredProcessor extends AbstractProcessor {
     private static final String MONITORED_SUFFIX = "_Monitored";
+
     private Configuration freemarkerConfiguration;
 
     private Filer filer;
@@ -64,15 +64,17 @@ public class MonitoredProcessor extends AbstractProcessor {
             List <MethodInformation> monitoredMethods = new ArrayList<>();
 
             for (Element enclosedElement : ((TypeElement) monitoredElement).getEnclosedElements()) {
-                CalledBy calledByAnnotation = enclosedElement.getAnnotation(CalledBy.class);
-                if (calledByAnnotation != null) {
-                    try {
-                        monitoredMethods.add(MethodInformation.from(enclosedElement));
-                    } catch (Exception e) {
-                        // Printing message with DiagnosticKind.ERROR will abort compilation
-                        error("An error occurred while processing class %s: %s",
-                                monitoredElement.getSimpleName(), e.getMessage());
-                    }
+                if (!hasMonitoringAnnotation(enclosedElement)) {
+                    continue;
+                }
+
+                try {
+                    MethodInformation temp = MethodInformation.from(enclosedElement);
+                    monitoredMethods.add(temp);
+                } catch (Exception e) {
+                    // Printing message with DiagnosticKind.ERROR will abort compilation
+                    error("An error occurred while processing class %s: %s",
+                            monitoredElement.getSimpleName(), e.getMessage());
                 }
             }
 
@@ -88,6 +90,16 @@ public class MonitoredProcessor extends AbstractProcessor {
         generateSubclasses(classList);
 
         return true;
+    }
+
+    private static boolean hasMonitoringAnnotation(Element element) {
+        for (Class <? extends Annotation> annotationClass : MonitoringInfo.MONITORING_ANNOTATIONS) {
+            if (element.getAnnotation(annotationClass) != null) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void generateSubclasses(List <ClassInformation> classList) {

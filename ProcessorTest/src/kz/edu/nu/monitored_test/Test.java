@@ -4,9 +4,9 @@ import kz.edu.nu.monitored.annotations.CalledBy;
 import kz.edu.nu.monitored.annotations.Monitored;
 
 @Monitored
-public class Test {
+class Test {
 
-    public static Test createInstance() {
+    static Test createInstance() {
         return new Test_Monitored();
     }
 
@@ -21,7 +21,7 @@ public class Test {
     }
 
     /**
-     * Non-void return type, non-empty paramenter list
+     * Non-void return type, non-empty parameter list
      */
     @CalledBy({
             "kz.edu.nu.monitored_test.Main#main"

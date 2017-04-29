@@ -1,6 +1,6 @@
 package kz.edu.nu.monitored.datamodel;
 
-import kz.edu.nu.monitored.annotations.CalledBy;
+import kz.edu.nu.monitored.datamodel.monitoring_info.MonitoringInfo;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
@@ -18,10 +18,14 @@ public class MethodInformation {
 
     private ExecutableElement methodElement;
     private Set<Modifier> modifiers;
+    private MonitoringInfo monitoringInfo;
 
-    private MethodInformation(ExecutableElement methodElement) {
+    private MethodInformation(
+        ExecutableElement methodElement, MonitoringInfo monitoringInfo) {
+
         this.methodElement = methodElement;
         this.modifiers = methodElement.getModifiers();
+        this.monitoringInfo = monitoringInfo;
     }
 
     /**
@@ -29,41 +33,32 @@ public class MethodInformation {
      * {@link MethodInformation}
      */
     public static MethodInformation from(Element rawElement) throws Exception {
-        CalledBy calledByAnnotation = rawElement.getAnnotation(CalledBy.class);
-        if (calledByAnnotation == null) {
-            throw new Exception("Cannot create MethodInformation from element " +
-                    "without @CalledBy annotations");
-        }
-
         if (rawElement.getKind() != ElementKind.METHOD) {
-            throw new Exception("@CalledBy annotation can applied only to methods");
+            throw new Exception("Monitoring annotations can be applied only to methods");
         }
 
         // Safe cast - we've made sure, that rawElement is method
         ExecutableElement methodElement = (ExecutableElement) rawElement;
 
-        String[] callers = calledByAnnotation.value();
-        if (callers.length == 0) {
-            throw new Exception("No callers are specified in @CalledBy annotation");
-        }
+        // This might throw exceptions if there's methodElement's annotations
+        MonitoringInfo monitoringInfo = MonitoringInfo.from(methodElement);
 
-        /*
-         * We cannot use private and final modifiers since they prevent from having
-         * subclass with the same method (which we're exploiting here).
-         *
-         * Having @CalledBy on abstract method makes no sense, since the whole system
-         * breaks when we try to apply inheritance.
-         */
+
+        // We cannot use private and final modifiers since they prevent from having
+        // subclass with the same method (which we're exploiting here).
+        //
+        // Having @CalledBy on abstract method makes no sense, since the whole system
+        // breaks when we try to apply inheritance.
         Set<Modifier> modifiers = methodElement.getModifiers();
         if (modifiers.contains(Modifier.ABSTRACT)
             || modifiers.contains(Modifier.PRIVATE)
             || modifiers.contains(Modifier.FINAL)) {
 
-            throw new Exception("@CalledBy annotation cannot be applied to " +
+            throw new Exception("Monitoring annotations cannot be applied to " +
                     "abstract, private or final methods");
         }
 
-        return new MethodInformation(methodElement);
+        return new MethodInformation(methodElement, monitoringInfo);
     }
 
     public String getAccessModifier() {
@@ -120,8 +115,7 @@ public class MethodInformation {
         return result;
     }
 
-    public List<String> getCallers() {
-        CalledBy calledByAnnotation = methodElement.getAnnotation(CalledBy.class);
-        return Arrays.asList(calledByAnnotation.value());
+    public MonitoringInfo getMonitoringInfo() {
+        return monitoringInfo;
     }
 }

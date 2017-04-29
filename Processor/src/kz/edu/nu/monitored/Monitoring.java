@@ -2,7 +2,7 @@ package kz.edu.nu.monitored;
 
 import java.util.Arrays;
 
-public class Monitoring {
+public abstract class Monitoring {
     /**
      * Verifies that all top elements of actualCallStack (except for the
      * last one) match names provided in expectedCallStack.
@@ -52,4 +52,6 @@ public class Monitoring {
     private static String getMethodFqn(StackTraceElement stackTraceElement) {
         return stackTraceElement.getClassName() + "#" + stackTraceElement.getMethodName();
     }
+
+    private Monitoring() {}
 }

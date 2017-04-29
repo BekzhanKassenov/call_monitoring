@@ -6,6 +6,8 @@
       <element id="directory" name="META-INF">
         <element id="dir-copy" path="$PROJECT_DIR$/Processor/META-INF" />
       </element>
+      <element id="extracted-dir" path="$PROJECT_DIR$/dependencies/freemarker.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/dependencies/guava-21.0.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
