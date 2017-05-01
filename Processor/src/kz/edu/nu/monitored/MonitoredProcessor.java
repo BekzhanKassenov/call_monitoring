@@ -5,8 +5,8 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 import kz.edu.nu.monitored.annotations.Monitored;
-import kz.edu.nu.monitored.datamodel.ClassInformation;
-import kz.edu.nu.monitored.datamodel.MethodInformation;
+import kz.edu.nu.monitored.datamodel.ClassModel;
+import kz.edu.nu.monitored.datamodel.MethodModel;
 import kz.edu.nu.monitored.datamodel.monitoring_info.MonitoringInfo;
 
 import javax.annotation.processing.*;
@@ -50,7 +50,7 @@ public class MonitoredProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
-        List <ClassInformation> classList = new ArrayList<>();
+        List <ClassModel> classList = new ArrayList<>();
         for (Element monitoredElement : roundEnvironment.getElementsAnnotatedWith(Monitored.class)) {
             if (monitoredElement.getKind() != ElementKind.CLASS) {
                 // Printing message with DiagnosticKind.ERROR will abort compilation
@@ -61,7 +61,7 @@ public class MonitoredProcessor extends AbstractProcessor {
 
             note("Processing class %s", monitoredElement.getSimpleName());
 
-            List <MethodInformation> monitoredMethods = new ArrayList<>();
+            List <MethodModel> monitoredMethods = new ArrayList<>();
 
             for (Element enclosedElement : ((TypeElement) monitoredElement).getEnclosedElements()) {
                 if (!hasMonitoringAnnotation(enclosedElement)) {
@@ -69,7 +69,7 @@ public class MonitoredProcessor extends AbstractProcessor {
                 }
 
                 try {
-                    MethodInformation temp = MethodInformation.from(enclosedElement);
+                    MethodModel temp = MethodModel.from(enclosedElement);
                     monitoredMethods.add(temp);
                 } catch (Exception e) {
                     // Printing message with DiagnosticKind.ERROR will abort compilation
@@ -79,7 +79,7 @@ public class MonitoredProcessor extends AbstractProcessor {
             }
 
             try {
-                classList.add(ClassInformation.from(monitoredElement, monitoredMethods));
+                classList.add(ClassModel.from(monitoredElement, monitoredMethods));
             } catch (Exception e) {
                 // Printing message with DiagnosticKind.ERROR will abort compilation
                 error("An error occurred while processing class %s: %s",
@@ -102,11 +102,11 @@ public class MonitoredProcessor extends AbstractProcessor {
         return false;
     }
 
-    private void generateSubclasses(List <ClassInformation> classList) {
+    private void generateSubclasses(List <ClassModel> classList) {
         String templateName = "ChildClassTemplate.ftl";
         try {
             Template template = freemarkerConfiguration.getTemplate(templateName);
-            for (ClassInformation classInformation : classList) {
+            for (ClassModel classInformation : classList) {
                 JavaFileObject fileObject =
                         filer.createSourceFile(classInformation.getClassFqn() + MONITORED_SUFFIX);
 

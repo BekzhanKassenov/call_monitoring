@@ -10,7 +10,7 @@ import java.util.*;
  * This class serves as data model in FreeMarker templates.
  * At the same time it performs some validations at instantiating.
  */
-public class MethodInformation {
+public class MethodModel {
     private static final Set <Modifier> ALL_ACCESS_MODIFIERS =
         Collections.unmodifiableSet(
             new HashSet<>(
@@ -20,7 +20,7 @@ public class MethodInformation {
     private Set<Modifier> modifiers;
     private MonitoringInfo monitoringInfo;
 
-    private MethodInformation(
+    private MethodModel(
         ExecutableElement methodElement, MonitoringInfo monitoringInfo) {
 
         this.methodElement = methodElement;
@@ -30,9 +30,9 @@ public class MethodInformation {
 
     /**
      * Performs validation of passed rawElement and creates new instance of
-     * {@link MethodInformation}
+     * {@link MethodModel}
      */
-    public static MethodInformation from(Element rawElement) throws Exception {
+    public static MethodModel from(Element rawElement) throws Exception {
         if (rawElement.getKind() != ElementKind.METHOD) {
             throw new Exception("Monitoring annotations can be applied only to methods");
         }
@@ -58,7 +58,7 @@ public class MethodInformation {
                     "abstract, private or final methods");
         }
 
-        return new MethodInformation(methodElement, monitoringInfo);
+        return new MethodModel(methodElement, monitoringInfo);
     }
 
     public String getAccessModifier() {

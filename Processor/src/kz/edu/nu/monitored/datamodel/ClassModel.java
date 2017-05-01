@@ -11,11 +11,11 @@ import java.util.List;
  * This class serves as data model in FreeMarker templates.
  * At the same time it performs some validations at instantiating.
  */
-public class ClassInformation {
+public class ClassModel {
     private TypeElement classElement;
-    private List<MethodInformation> monitoredMethods;
+    private List<MethodModel> monitoredMethods;
 
-    private ClassInformation(TypeElement classElement, List<MethodInformation> monitoredMethods) {
+    private ClassModel(TypeElement classElement, List<MethodModel> monitoredMethods) {
         this.classElement = classElement;
         this.monitoredMethods = monitoredMethods;
     }
@@ -31,7 +31,7 @@ public class ClassInformation {
         return classElement.getSimpleName().toString();
     }
 
-    public List<MethodInformation> getMonitoredMethods() {
+    public List<MethodModel> getMonitoredMethods() {
         return monitoredMethods;
     }
 
@@ -39,7 +39,7 @@ public class ClassInformation {
         return classElement.getQualifiedName().toString();
     }
 
-    public static ClassInformation from(Element rawElement, List<MethodInformation> monitoredMethods)
+    public static ClassModel from(Element rawElement, List<MethodModel> monitoredMethods)
         throws Exception {
 
         if (rawElement.getKind() != ElementKind.CLASS) {
@@ -50,6 +50,6 @@ public class ClassInformation {
             throw new Exception("@Monitored annotation cannot be applied to final classes");
         }
 
-        return new ClassInformation((TypeElement) rawElement, monitoredMethods);
+        return new ClassModel((TypeElement) rawElement, monitoredMethods);
     }
 }
