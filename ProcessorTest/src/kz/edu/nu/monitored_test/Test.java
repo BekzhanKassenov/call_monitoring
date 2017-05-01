@@ -7,8 +7,18 @@ import kz.edu.nu.monitored.annotations.Monitored;
 @Monitored
 class Test {
 
+    Test(String s) {
+        System.out.println(s);
+    }
+
+    Test() {}
+
     static Test createInstance() {
         return new Test_Monitored();
+    }
+
+    static Test createInstance(String s) {
+        return new Test_Monitored(s);
     }
 
     /**

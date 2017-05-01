@@ -19,6 +19,9 @@ public class Main {
         }
 
         testLayer(test);
+
+        // Test constructor
+        Test test1 = Test.createInstance("Hello!");
     }
 
     static void testLayer(Test test) {

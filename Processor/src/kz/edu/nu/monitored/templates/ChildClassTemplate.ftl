@@ -6,6 +6,10 @@ import java.util.Arrays;
 import java.util.List;
 
 class ${className}_Monitored extends ${className} {
+    <#list constructors as constructor>
+        <#include "ConstructorTemplate.ftl">
+    </#list>
+
     <#list monitoredMethods as method>
         <#if method.monitoringInfo.monitoringType != "NO_MONITORING">
             <#include "MethodHeader.ftl"> <#-- Setup header of the method -->

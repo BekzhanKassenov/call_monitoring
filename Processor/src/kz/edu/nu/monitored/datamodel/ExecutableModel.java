@@ -10,37 +10,38 @@ import java.util.*;
  * This class serves as data model in FreeMarker templates.
  * At the same time it performs some validations at instantiating.
  */
-public class MethodModel {
+public class ExecutableModel {
     private static final Set <Modifier> ALL_ACCESS_MODIFIERS =
         Collections.unmodifiableSet(
             new HashSet<>(
                 Arrays.asList(Modifier.PRIVATE, Modifier.PROTECTED, Modifier.PUBLIC)));
 
-    private ExecutableElement methodElement;
+    private ExecutableElement executableElement;
     private Set<Modifier> modifiers;
     private MonitoringInfo monitoringInfo;
 
-    private MethodModel(
+    private ExecutableModel(
         ExecutableElement methodElement, MonitoringInfo monitoringInfo) {
 
-        this.methodElement = methodElement;
+        this.executableElement = methodElement;
         this.modifiers = methodElement.getModifiers();
         this.monitoringInfo = monitoringInfo;
     }
 
     /**
      * Performs validation of passed rawElement and creates new instance of
-     * {@link MethodModel}
+     * {@link ExecutableModel}
      */
-    public static MethodModel from(Element rawElement) throws Exception {
-        if (rawElement.getKind() != ElementKind.METHOD) {
-            throw new Exception("Monitoring annotations can be applied only to methods");
+    public static ExecutableModel from(Element rawElement) throws Exception {
+        if (rawElement.getKind() != ElementKind.METHOD
+            && rawElement.getKind() != ElementKind.CONSTRUCTOR) {
+            throw new Exception("Monitoring annotations can be applied only to methods or constructors");
         }
 
-        // Safe cast - we've made sure, that rawElement is method
+        // Safe cast - we've made sure, that rawElement is either method or constructor
         ExecutableElement methodElement = (ExecutableElement) rawElement;
 
-        // This might throw exceptions if there's methodElement's annotations
+        // This might throw exceptions if there's something wrong with executableElement's annotations
         MonitoringInfo monitoringInfo = MonitoringInfo.from(methodElement);
 
 
@@ -58,7 +59,7 @@ public class MethodModel {
                     "abstract, private or final methods");
         }
 
-        return new MethodModel(methodElement, monitoringInfo);
+        return new ExecutableModel(methodElement, monitoringInfo);
     }
 
     public String getAccessModifier() {
@@ -73,24 +74,45 @@ public class MethodModel {
         return accessModifiers.toArray()[0].toString();
     }
 
-    public String getStaticModifier() {
+    public String getStaticModifier() throws Exception {
+        if (executableElement.getKind() != ElementKind.METHOD) {
+            throw new Exception("Static modifier can be requested only for methods");
+        }
+
         if (!modifiers.contains(Modifier.STATIC)) {
             return null;
         }
         return Modifier.STATIC.toString();
     }
 
-    public String getReturnType() {
-        return methodElement.getReturnType().toString();
+    public String getReturnType() throws Exception {
+        if (executableElement.getKind() != ElementKind.METHOD) {
+            throw new Exception("Return type can be requested only for methods");
+        }
+        return executableElement.getReturnType().toString();
     }
 
-    public String getName() {
-        return methodElement.getSimpleName().toString();
+    public String getName() throws Exception {
+        if (executableElement.getKind() != ElementKind.METHOD) {
+            throw new Exception("Name can be requested only for methods");
+        }
+        return executableElement.getSimpleName().toString();
+    }
+
+    public MonitoringInfo getMonitoringInfo() throws Exception {
+        if (executableElement.getKind() != ElementKind.METHOD) {
+            throw new Exception("Monitoring info can be requested only for methods");
+        }
+        return monitoringInfo;
+    }
+
+    public String getClassName() throws Exception {
+        return executableElement.getEnclosingElement().getSimpleName().toString();
     }
 
     public List<String> getParameterTypes() {
         List<String> result = new ArrayList<>();
-        for (VariableElement parameter : methodElement.getParameters()) {
+        for (VariableElement parameter : executableElement.getParameters()) {
             result.add(parameter.asType().toString());
         }
 
@@ -99,7 +121,7 @@ public class MethodModel {
 
     public List<String> getParameterNames() {
         List<String> result = new ArrayList<>();
-        for (VariableElement parameter : methodElement.getParameters()) {
+        for (VariableElement parameter : executableElement.getParameters()) {
             result.add(parameter.getSimpleName().toString());
         }
 
@@ -108,14 +130,10 @@ public class MethodModel {
 
     public List<String> getThrownExceptions() {
         List <String> result = new ArrayList<>();
-        for (TypeMirror exceptionType : methodElement.getThrownTypes()) {
+        for (TypeMirror exceptionType : executableElement.getThrownTypes()) {
             result.add(exceptionType.toString());
         }
 
         return result;
-    }
-
-    public MonitoringInfo getMonitoringInfo() {
-        return monitoringInfo;
     }
 }

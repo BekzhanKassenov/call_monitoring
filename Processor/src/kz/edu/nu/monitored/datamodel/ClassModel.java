@@ -13,10 +13,15 @@ import java.util.List;
  */
 public class ClassModel {
     private TypeElement classElement;
-    private List<MethodModel> monitoredMethods;
+    private List<ExecutableModel> constructors;
+    private List<ExecutableModel> monitoredMethods;
 
-    private ClassModel(TypeElement classElement, List<MethodModel> monitoredMethods) {
+    private ClassModel(
+            TypeElement classElement,
+            List<ExecutableModel> constructors,
+            List<ExecutableModel> monitoredMethods) {
         this.classElement = classElement;
+        this.constructors = constructors;
         this.monitoredMethods = monitoredMethods;
     }
 
@@ -31,7 +36,11 @@ public class ClassModel {
         return classElement.getSimpleName().toString();
     }
 
-    public List<MethodModel> getMonitoredMethods() {
+    public List<ExecutableModel> getConstructors() {
+        return constructors;
+    }
+
+    public List<ExecutableModel> getMonitoredMethods() {
         return monitoredMethods;
     }
 
@@ -39,8 +48,10 @@ public class ClassModel {
         return classElement.getQualifiedName().toString();
     }
 
-    public static ClassModel from(Element rawElement, List<MethodModel> monitoredMethods)
-        throws Exception {
+    public static ClassModel from(
+            Element rawElement,
+            List<ExecutableModel> constructors,
+            List<ExecutableModel> monitoredMethods) throws Exception {
 
         if (rawElement.getKind() != ElementKind.CLASS) {
             throw new Exception("@Monitored annotation can applied only to class elements");
@@ -50,6 +61,6 @@ public class ClassModel {
             throw new Exception("@Monitored annotation cannot be applied to final classes");
         }
 
-        return new ClassModel((TypeElement) rawElement, monitoredMethods);
+        return new ClassModel((TypeElement) rawElement, constructors, monitoredMethods);
     }
 }

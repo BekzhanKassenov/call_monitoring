@@ -6,7 +6,7 @@ import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 import kz.edu.nu.monitored.annotations.Monitored;
 import kz.edu.nu.monitored.datamodel.ClassModel;
-import kz.edu.nu.monitored.datamodel.MethodModel;
+import kz.edu.nu.monitored.datamodel.ExecutableModel;
 import kz.edu.nu.monitored.datamodel.monitoring_info.MonitoringInfo;
 
 import javax.annotation.processing.*;
@@ -61,25 +61,12 @@ public class MonitoredProcessor extends AbstractProcessor {
 
             note("Processing class %s", monitoredElement.getSimpleName());
 
-            List <MethodModel> monitoredMethods = new ArrayList<>();
-
-            for (Element enclosedElement : ((TypeElement) monitoredElement).getEnclosedElements()) {
-                if (!hasMonitoringAnnotation(enclosedElement)) {
-                    continue;
-                }
-
-                try {
-                    MethodModel temp = MethodModel.from(enclosedElement);
-                    monitoredMethods.add(temp);
-                } catch (Exception e) {
-                    // Printing message with DiagnosticKind.ERROR will abort compilation
-                    error("An error occurred while processing class %s: %s",
-                            monitoredElement.getSimpleName(), e.getMessage());
-                }
-            }
+            TypeElement classElement = (TypeElement) monitoredElement;
+            List<ExecutableModel> monitoredMethods = extractMonitoredMethods(classElement);
+            List<ExecutableModel> constructors = extractConstructors(classElement);
 
             try {
-                classList.add(ClassModel.from(monitoredElement, monitoredMethods));
+                classList.add(ClassModel.from(monitoredElement, constructors, monitoredMethods));
             } catch (Exception e) {
                 // Printing message with DiagnosticKind.ERROR will abort compilation
                 error("An error occurred while processing class %s: %s",
@@ -91,6 +78,49 @@ public class MonitoredProcessor extends AbstractProcessor {
 
         return true;
     }
+
+    private List<ExecutableModel> extractConstructors(TypeElement classElement) {
+        List <ExecutableModel> constructors = new ArrayList<>();
+
+        for (Element enclosedElement : classElement.getEnclosedElements()) {
+            if (enclosedElement.getKind() != ElementKind.CONSTRUCTOR) {
+                continue;
+            }
+
+            try {
+                constructors.add(ExecutableModel.from(enclosedElement));
+            } catch (Exception e) {
+                // Printing message with DiagnosticKind.ERROR will abort compilation
+                error("An error occurred while processing class %s: %s",
+                        classElement.getSimpleName(), e.getMessage());
+            }
+        }
+
+        return constructors;
+    }
+
+    private List<ExecutableModel> extractMonitoredMethods(TypeElement classElement) {
+        List <ExecutableModel> monitoredMethods = new ArrayList<>();
+
+        for (Element enclosedElement : classElement.getEnclosedElements()) {
+            if (enclosedElement.getKind() != ElementKind.METHOD
+                || !hasMonitoringAnnotation(enclosedElement)) {
+                continue;
+            }
+
+            try {
+                monitoredMethods.add(ExecutableModel.from(enclosedElement));
+            } catch (Exception e) {
+                // Printing message with DiagnosticKind.ERROR will abort compilation
+                error("An error occurred while processing class %s: %s",
+                        classElement.getSimpleName(), e.getMessage());
+            }
+        }
+
+        return monitoredMethods;
+    }
+
+
 
     private static boolean hasMonitoringAnnotation(Element element) {
         for (Class <? extends Annotation> annotationClass : MonitoringInfo.MONITORING_ANNOTATIONS) {
