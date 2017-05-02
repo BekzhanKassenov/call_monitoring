@@ -1,8 +1,13 @@
 # Project
 Call monitoring is annotation processor used for allowing/disallowing certain callers for some particular method in runtime.
 
-# Build
-TODO
+# How to run this with IntelliJ IDEA?
+
+1. Check out the project from git repository and open it.
+2. Right click on `Processor` module and Build it (it's always better to use Rebuild).
+3. Open `Build | Build artifacts`
+4. Rebuild Processor artifact
+5. Compile and run Main.java
 
 # What's inside?
 Call monitoring generates subclass that must be always returned as an instance of monitored class. Generated sublcass verifies caller and then delegates to superclass.
@@ -93,6 +98,7 @@ Call monitoring provides three annotations for use. They are:
 1. Create annotation for your monitoring type.
 2. Create subclass of MonitoringInfo.java, add Type enum (which is used as factory).
 3. Create template for your monitoring body.
+4. Add some code to Monitoring.java (optional).
 
 ### Other notes:
 
